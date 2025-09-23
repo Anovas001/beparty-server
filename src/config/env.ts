@@ -2,12 +2,13 @@ import { z } from 'zod';
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  PORT: z.string().transform(val => parseInt(val, 10)).default('3000'),
+  PORT: z.string().transform((val: string) => parseInt(val, 10)).default('3000'),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
   DATABASE_URL: z.string(),
   JWT_SECRET: z.string(),
-  RATE_LIMIT_WINDOW_MS: z.string().transform(val => parseInt(val, 10)).default('60000'),
-  RATE_LIMIT_MAX: z.string().transform(val => parseInt(val, 10)).default('100'),
+  RATE_LIMIT_WINDOW_MS: z.string().transform((val: string) => parseInt(val, 10)).default('60000'),
+  RATE_LIMIT_MAX: z.string().transform((val: string) => parseInt(val, 10)).default('100'),
+  DEFAULT_STARTING_TOKENS: z.string().transform((val: string) => parseInt(val, 10)).default('100'),
 });
 
 export type Environment = z.infer<typeof envSchema>;

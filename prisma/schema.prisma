@@ -10,12 +10,124 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Enums
+enum UserRole {
+  DJ
+  USER
+}
+
+enum SessionStatus {
+  LIVE
+  ENDED
+}
+
+enum TxDirection {
+  EARN
+  SPEND
+}
+
+enum TxReason {
+  REGISTER_BONUS
+  VOTE
+  ADMIN_ADJUST
+  SESSION_BONUS
+}
+
+// Models
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id             String    @id @default(cuid())
+  email          String    @unique
+  password_hash  String
+  display_name   String
+  role           UserRole  @default(USER)
+  tokens_balance BigInt    @default(0)
+  created_at     DateTime  @default(now()) @map("created_at")
+  updated_at     DateTime  @updatedAt @map("updated_at")
+  deleted_at     DateTime? @map("deleted_at")
+
+  // Relations
+  dj_sessions      Session[]           @relation("DJSessions")
+  votes            Vote[]
+  token_transactions TokenTransaction[]
 
   @@map("users")
+}
+
+model Session {
+  id         String        @id @default(cuid())
+  name       String
+  dj_user_id String        @map("dj_user_id")
+  status     SessionStatus @default(LIVE)
+  started_at DateTime      @default(now()) @map("started_at")
+  ended_at   DateTime?     @map("ended_at")
+  created_at DateTime      @default(now()) @map("created_at")
+  updated_at DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  dj_user            User              @relation("DJSessions", fields: [dj_user_id], references: [id], onDelete: Restrict)
+  session_songs      SessionSong[]
+  token_transactions TokenTransaction[]
+
+  @@map("sessions")
+}
+
+model SessionSong {
+  id                String    @id @default(cuid())
+  session_id        String    @map("session_id")
+  spotify_track_id  String    @map("spotify_track_id")
+  
+  // Snapshot fields from Spotify
+  track_name        String?   @map("track_name")
+  artist_name       String?   @map("artist_name")
+  album_name        String?   @map("album_name")
+  cover_url         String?   @map("cover_url")
+  duration_ms       Int?      @map("duration_ms")
+  
+  total_tokens      BigInt    @default(0) @map("total_tokens")
+  created_at        DateTime  @default(now()) @map("created_at")
+  updated_at        DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  session Session @relation(fields: [session_id], references: [id], onDelete: Cascade)
+  votes   Vote[]
+
+  // Constraints
+  @@unique([session_id, spotify_track_id], name: "unique_session_spotify_track")
+  @@index([session_id, total_tokens(sort: Desc)], name: "idx_session_scoreboard")
+  @@map("session_songs")
+}
+
+model Vote {
+  id              String   @id @default(cuid())
+  session_song_id String   @map("session_song_id")
+  user_id         String   @map("user_id")
+  tokens_spent    BigInt   @map("tokens_spent")
+  created_at      DateTime @default(now()) @map("created_at")
+
+  // Relations
+  session_song SessionSong @relation(fields: [session_song_id], references: [id], onDelete: Cascade)
+  user         User        @relation(fields: [user_id], references: [id], onDelete: Restrict)
+
+  // Indexes
+  @@index([session_song_id], name: "idx_vote_session_song")
+  @@index([user_id, created_at], name: "idx_vote_user_created")
+  @@map("votes")
+}
+
+model TokenTransaction {
+  id         String    @id @default(cuid())
+  user_id    String    @map("user_id")
+  direction  TxDirection
+  amount     BigInt
+  reason     TxReason
+  session_id String?   @map("session_id")
+  created_at DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  user    User     @relation(fields: [user_id], references: [id], onDelete: Restrict)
+  session Session? @relation(fields: [session_id], references: [id], onDelete: SetNull)
+
+  // Index
+  @@index([user_id, created_at(sort: Desc)], name: "idx_token_tx_user_created")
+  @@map("token_transactions")
 }

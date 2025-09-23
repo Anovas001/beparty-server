@@ -52,6 +52,92 @@ BePARTy is a SaaS platform that transforms nightclub experiences by:
    npm run docker:up
    ```
 
+4. **Database setup**:
+   ```bash
+   npx prisma generate
+   npx prisma migrate dev --name init_mvp
+   npm run prisma:seed
+   ```
+
+5. **Start development server**:
+   ```bash
+   npm run dev
+   ```
+
+### Verification
+
+- **API Health**: http://localhost:3000/api/health
+- **API Documentation**: http://localhost:3000/api/docs
+- **Socket.IO**: http://localhost:3000/realtime
+
+## 📊 Database & Migrations — MVP
+
+### Schema Overview
+
+The MVP includes a minimal but complete token-based voting system:
+
+- **Users**: DJ and USER roles with token balances
+- **Sessions**: DJ-created rooms for voting
+- **SessionSongs**: Song aggregates with Spotify integration
+- **Votes**: Individual token spending records
+- **TokenTransactions**: Complete token ledger for audit
+
+### Database Commands
+
+```bash
+# Generate Prisma client
+npx prisma generate
+
+# Run migrations
+npx prisma migrate dev --name init_mvp
+
+# Seed with sample data
+npm run prisma:seed
+
+# Reset database (development only)
+npx prisma migrate reset --force
+```
+
+### Verification Query
+
+Check the session scoreboard with:
+
+```sql
+SELECT ss.spotify_track_id, ss.track_name, ss.artist_name, ss.total_tokens
+FROM "session_songs" ss
+WHERE ss.session_id = '<SESSION_ID>'
+ORDER BY ss.total_tokens DESC;
+```
+
+Example with seeded data:
+
+```sql
+SELECT ss.spotify_track_id, ss.track_name, ss.artist_name, ss.total_tokens
+FROM "session_songs" ss
+WHERE ss.session_id = 'cmfx4ei2h000acz48kgfhrw5x'
+ORDER BY ss.total_tokens DESC;
+```
+
+### Token Integrity
+
+The system maintains token balance integrity:
+
+```sql
+-- Verify user token balance matches transaction ledger
+SELECT 
+  u.display_name,
+  u.tokens_balance as current_balance,
+  COALESCE(SUM(CASE WHEN tt.direction = 'EARN' THEN tt.amount ELSE 0 END), 0) -
+  COALESCE(SUM(CASE WHEN tt.direction = 'SPEND' THEN tt.amount ELSE 0 END), 0) as ledger_balance
+FROM "users" u
+LEFT JOIN "token_transactions" tt ON u.id = tt.user_id
+WHERE u.deleted_at IS NULL
+GROUP BY u.id, u.display_name, u.tokens_balance;
+```
+   ```bash
+   npm run docker:up
+   ```
+
 4. **Run database migrations and seed**:
    ```bash
    npm run prisma:migrate
