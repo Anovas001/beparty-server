@@ -1,0 +1,73 @@
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: beparty-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: beparty
+      POSTGRES_USER: beparty
+      POSTGRES_PASSWORD: beparty
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - beparty-net
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U beparty -d beparty']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # BePARTy API Server
+  api:
+    build: .
+    container_name: beparty-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://beparty:beparty@db:5432/beparty?schema=public
+      JWT_SECRET: ${JWT_SECRET:-production-jwt-secret-change-me}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-60000}
+      RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-100}
+    ports:
+      - '3000:3000'
+    networks:
+      - beparty-net
+    healthcheck:
+      test: ['CMD', 'wget', '--quiet', '--tries=1', '--spider', 'http://localhost:3000/api/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PgAdmin (optional - for database management)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: beparty-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@beparty.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - '8080:80'
+    networks:
+      - beparty-net
+    depends_on:
+      - db
+    profiles:
+      - tools
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  beparty-net:
+    driver: bridge

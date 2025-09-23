@@ -1,0 +1,25 @@
+import { PrismaClient } from '@prisma/client';
+
+import { logger } from '@/config/logger';
+
+let prisma: PrismaClient;
+
+export const setupPrisma = (): PrismaClient => {
+  if (!prisma) {
+    prisma = new PrismaClient({
+      log: ['query', 'info', 'warn', 'error'],
+    });
+
+    logger.info('Prisma client initialized');
+  }
+
+  return prisma;
+};
+
+export const closePrisma = async (): Promise<void> => {
+  if (prisma) {
+    await prisma.$disconnect();
+  }
+};
+
+export { prisma };
