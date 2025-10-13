@@ -7,7 +7,7 @@ let prisma: PrismaClient;
 export const setupPrisma = (): PrismaClient => {
   if (!prisma) {
     prisma = new PrismaClient({
-      log: ['query', 'info', 'warn', 'error'],
+      log: ['warn', 'error'], // Only show warnings and errors, no query logs
     });
 
     logger.info('Prisma client initialized');

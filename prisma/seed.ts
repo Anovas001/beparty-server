@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -7,13 +8,16 @@ const DEFAULT_STARTING_TOKENS = BigInt(process.env.DEFAULT_STARTING_TOKENS || '1
 async function main() {
   console.log('🌱 Starting MVP database seed...');
 
+  // Hash passwords (password123 for all users in development)
+  const hashedPassword = await bcrypt.hash('password123', 12);
+
   // Create Users
   const djUser = await prisma.user.upsert({
     where: { email: 'dj@beparty.local' },
     update: {},
     create: {
       email: 'dj@beparty.local',
-      password_hash: '$2b$10$dummy.hash.for.development.purposes.only', // In real app, use bcrypt
+      password_hash: hashedPassword,
       display_name: 'DJ Master',
       role: 'DJ',
       tokens_balance: DEFAULT_STARTING_TOKENS,
@@ -25,7 +29,7 @@ async function main() {
     update: {},
     create: {
       email: 'user1@beparty.local',
-      password_hash: '$2b$10$dummy.hash.for.development.purposes.only',
+      password_hash: hashedPassword,
       display_name: 'Party User 1',
       role: 'USER',
       tokens_balance: DEFAULT_STARTING_TOKENS,
@@ -37,7 +41,7 @@ async function main() {
     update: {},
     create: {
       email: 'user2@beparty.local',
-      password_hash: '$2b$10$dummy.hash.for.development.purposes.only',
+      password_hash: hashedPassword,
       display_name: 'Party User 2',
       role: 'USER',
       tokens_balance: DEFAULT_STARTING_TOKENS,
