@@ -10,8 +10,8 @@ const router = Router();
  * /sessions/{sessionId}/songs/{songId}/vote:
  *   post:
  *     summary: Vote for a song with tokens
- *     description: Spend tokens to vote for a song in an active session
- *     tags: [Votes]
+ *     description: Spend tokens to vote for a song in an active session. Validates user token balance, creates vote record, and updates balances atomically.
+ *     tags: [Voting System]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -32,15 +32,7 @@ const router = Router();
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - tokens_spent
- *             properties:
- *               tokens_spent:
- *                 type: number
- *                 minimum: 1
- *                 maximum: 1000
- *                 example: 25
+ *             $ref: '#/components/schemas/VoteRequest'
  *     responses:
  *       201:
  *         description: Vote cast successfully

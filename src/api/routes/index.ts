@@ -2,6 +2,7 @@ import { Router } from 'express';
 import swaggerUi from 'swagger-ui-express';
 
 import { authRoutes } from './auth.routes';
+import { debugRoutes } from './debug.routes';
 import { healthRoutes } from './health.routes';
 import { sessionsRoutes } from './sessions.routes';
 import { usersRoutes } from './users.routes';
@@ -19,6 +20,9 @@ router.get('/docs', swaggerUi.setup(openApiSpec, {
 
 // Health routes
 router.use('/', healthRoutes);
+
+// Debug routes (development only)
+router.use('/', debugRoutes);
 
 // Authentication routes
 router.use('/auth', authRoutes);

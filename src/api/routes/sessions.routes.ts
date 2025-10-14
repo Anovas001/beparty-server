@@ -31,24 +31,7 @@ const router = Router();
  *                     sessions:
  *                       type: array
  *                       items:
- *                         type: object
- *                         properties:
- *                           id:
- *                             type: string
- *                           name:
- *                             type: string
- *                           started_at:
- *                             type: string
- *                             format: date-time
- *                           dj:
- *                             type: object
- *                             properties:
- *                               id:
- *                                 type: string
- *                               display_name:
- *                                 type: string
- *                           songs_count:
- *                             type: number
+ *                         $ref: '#/components/schemas/Session'
  *       401:
  *         description: Authentication required
  */

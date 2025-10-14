@@ -10,7 +10,7 @@ const router = Router();
  * /users/me:
  *   get:
  *     summary: Get current user profile
- *     description: Get authenticated user's profile information including token balance
+ *     description: Get authenticated user's profile information including token balance and role
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
@@ -29,21 +29,13 @@ const router = Router();
  *                   type: object
  *                   properties:
  *                     user:
- *                       type: object
- *                       properties:
- *                         id:
- *                           type: string
- *                         email:
- *                           type: string
- *                         display_name:
- *                           type: string
- *                         role:
- *                           type: string
- *                           enum: [DJ, USER]
- *                         tokens_balance:
- *                           type: string
+ *                       $ref: '#/components/schemas/User'
  *       401:
  *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.get('/me', authMiddleware, UsersController.getMe);
 
