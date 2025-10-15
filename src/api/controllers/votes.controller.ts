@@ -31,10 +31,9 @@ export class VotesController {
         });
       }
 
-      const { sessionId, songId } = req.params;
-      const { tokens_spent } = validationResult.data;
+      const { session_id, song_id, token_amount } = validationResult.data;
 
-      if (!sessionId || !songId) {
+      if (!session_id || !song_id) {
         return res.status(400).json({
           error: {
             message: 'Session ID and Song ID are required',
@@ -47,9 +46,9 @@ export class VotesController {
       try {
         const result = await TokenService.executeVoteTransaction(
           req.user.id,
-          songId,
-          sessionId,
-          tokens_spent
+          song_id,
+          session_id,
+          token_amount
         );
 
         return res.status(201).json({

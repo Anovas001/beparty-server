@@ -72,6 +72,9 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.2.2"
   },
+  "prisma": {
+    "seed": "ts-node --project prisma/tsconfig.json prisma/seed.ts"
+  },
   "engines": {
     "node": ">=20.0.0",
     "npm": ">=9.0.0"

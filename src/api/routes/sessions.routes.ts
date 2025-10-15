@@ -39,7 +39,7 @@ router.get('/', authMiddleware, SessionsController.getSessions);
 
 /**
  * @openapi
- * /sessions/{id}/songs:
+ * /sessions/songs:
  *   get:
  *     summary: Get session songs with vote totals
  *     description: Get all songs in a session ordered by vote totals (scoreboard)
@@ -47,12 +47,14 @@ router.get('/', authMiddleware, SessionsController.getSessions);
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: path
- *         name: id
+ *       - in: query
+ *         name: session_id
  *         required: true
  *         schema:
- *           type: string
- *         description: Session ID
+ *           type: integer
+ *           minimum: 1
+ *         description: Session ID (integer)
+ *         example: 1
  *     responses:
  *       200:
  *         description: Session songs retrieved successfully
@@ -63,6 +65,7 @@ router.get('/', authMiddleware, SessionsController.getSessions);
  *               properties:
  *                 success:
  *                   type: boolean
+ *                   example: true
  *                 data:
  *                   type: object
  *                   properties:
@@ -70,16 +73,9 @@ router.get('/', authMiddleware, SessionsController.getSessions);
  *                       type: object
  *                       properties:
  *                         id:
- *                           type: string
+ *                           type: integer
  *                         name:
  *                           type: string
- *                         dj:
- *                           type: object
- *                           properties:
- *                             id:
- *                               type: string
- *                             display_name:
- *                               type: string
  *                     songs:
  *                       type: array
  *                       items:
@@ -87,19 +83,19 @@ router.get('/', authMiddleware, SessionsController.getSessions);
  *                         properties:
  *                           id:
  *                             type: string
- *                           spotify_track_id:
- *                             type: string
  *                           track_name:
  *                             type: string
  *                           artist_name:
  *                             type: string
  *                           total_tokens:
  *                             type: string
+ *       400:
+ *         description: Invalid session ID
  *       404:
  *         description: Session not found or not active
  *       401:
  *         description: Authentication required
  */
-router.get('/:id/songs', authMiddleware, SessionsController.getSessionSongs);
+router.get('/songs', authMiddleware, SessionsController.getSessionSongs);
 
 export { router as sessionsRoutes };

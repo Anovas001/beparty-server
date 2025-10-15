@@ -7,32 +7,39 @@ const router = Router();
 
 /**
  * @openapi
- * /sessions/{sessionId}/songs/{songId}/vote:
+ * /vote:
  *   post:
  *     summary: Vote for a song with tokens
  *     description: Spend tokens to vote for a song in an active session. Validates user token balance, creates vote record, and updates balances atomically.
  *     tags: [Voting System]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: sessionId
- *         required: true
- *         schema:
- *           type: string
- *         description: Session ID
- *       - in: path
- *         name: songId
- *         required: true
- *         schema:
- *           type: string
- *         description: Session Song ID
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/VoteRequest'
+ *             type: object
+ *             required:
+ *               - session_id
+ *               - song_id
+ *               - token_amount
+ *             properties:
+ *               session_id:
+ *                 type: integer
+ *                 minimum: 1
+ *                 description: Session ID (integer)
+ *                 example: 1
+ *               song_id:
+ *                 type: string
+ *                 description: Session Song ID (CUID format)
+ *                 example: "cmgsjtw75000exq087icrby56"
+ *               token_amount:
+ *                 type: number
+ *                 minimum: 1
+ *                 maximum: 1000
+ *                 description: Amount of tokens to spend on this vote
+ *                 example: 25
  *     responses:
  *       201:
  *         description: Vote cast successfully
@@ -81,6 +88,6 @@ const router = Router();
  *       401:
  *         description: Authentication required
  */
-router.post('/:sessionId/songs/:songId/vote', authMiddleware, VotesController.voteForSong);
+router.post('/', authMiddleware, VotesController.voteForSong);
 
 export { router as votesRoutes };

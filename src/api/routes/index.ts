@@ -34,6 +34,6 @@ router.use('/users', usersRoutes);
 router.use('/sessions', sessionsRoutes);
 
 // Vote routes
-router.use('/sessions', votesRoutes);
+router.use('/vote', votesRoutes);
 
 export { router as routes };

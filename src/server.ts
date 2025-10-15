@@ -19,8 +19,8 @@ server.listen(env.PORT, () => {
   logger.info('  POST   /api/auth/login       - User authentication');
   logger.info('  GET    /api/users/me         - Get user profile');
   logger.info('  GET    /api/sessions         - List active sessions');
-  logger.info('  GET    /api/sessions/:id/songs - Get session songs');
-  logger.info('  POST   /api/sessions/:sessionId/songs/:songId/vote - Vote for song');
+  logger.info('  GET    /api/sessions/songs   - Get session songs (?session_id=1)');
+  logger.info('  POST   /api/vote             - Vote for song');
   logger.info('  GET    /api/health           - Health check');
   logger.info('  GET    /api/routes           - List all routes (debug)');
   logger.info('');

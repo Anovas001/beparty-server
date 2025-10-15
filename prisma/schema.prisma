@@ -54,7 +54,7 @@ model User {
 }
 
 model Session {
-  id         String        @id @default(cuid())
+  id         Int           @id @default(autoincrement())
   name       String
   dj_user_id String        @map("dj_user_id")
   status     SessionStatus @default(LIVE)
@@ -73,7 +73,7 @@ model Session {
 
 model SessionSong {
   id                String    @id @default(cuid())
-  session_id        String    @map("session_id")
+  session_id        Int       @map("session_id")
   spotify_track_id  String    @map("spotify_track_id")
   
   // Snapshot fields from Spotify
@@ -120,7 +120,7 @@ model TokenTransaction {
   direction  TxDirection
   amount     BigInt
   reason     TxReason
-  session_id String?   @map("session_id")
+  session_id Int?      @map("session_id")
   created_at DateTime  @default(now()) @map("created_at")
 
   // Relations

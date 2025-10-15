@@ -1,6 +1,7 @@
 import { Response } from 'express';
 
 import { AuthenticatedRequest } from '../middlewares/auth.middleware';
+import { sessionSongsQuerySchema } from '../schemas/session.schema';
 import { setupPrisma } from '@/loaders/prisma';
 
 const prisma = setupPrisma();
@@ -64,12 +65,28 @@ export class SessionsController {
 
   public static getSessionSongs = async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
     try {
-      const { id } = req.params;
+      // Validate query parameters using Zod
+      const validationResult = sessionSongsQuerySchema.safeParse({
+        session_id: req.query.session_id
+      });
+
+      if (!validationResult.success) {
+        return res.status(400).json({
+          error: {
+            message: 'Validation failed',
+            details: validationResult.error.errors,
+            statusCode: 400,
+            timestamp: new Date().toISOString(),
+          },
+        });
+      }
+
+      const { session_id } = validationResult.data;
 
       // First verify the session exists and is LIVE
       const session = await prisma.session.findFirst({
         where: {
-          id,
+          id: session_id,
           status: 'LIVE',
         },
         select: {
@@ -97,7 +114,7 @@ export class SessionsController {
       // Get songs with vote totals
       const songs = await prisma.sessionSong.findMany({
         where: {
-          session_id: id,
+          session_id: session_id,
         },
         select: {
           id: true,

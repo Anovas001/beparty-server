@@ -6,7 +6,7 @@ export class TokenService {
   static async executeVoteTransaction(
     userId: string,
     sessionSongId: string,
-    sessionId: string,
+    sessionId: number,
     tokensToSpend: number
   ) {
     return await prisma.$transaction(async (tx) => {

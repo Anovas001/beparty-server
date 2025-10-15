@@ -105,7 +105,7 @@ Check the session scoreboard with:
 ```sql
 SELECT ss.spotify_track_id, ss.track_name, ss.artist_name, ss.total_tokens
 FROM "session_songs" ss
-WHERE ss.session_id = '<SESSION_ID>'
+WHERE ss.session_id = 1  -- Session ID is now INTEGER
 ORDER BY ss.total_tokens DESC;
 ```
 
@@ -114,7 +114,7 @@ Example with seeded data:
 ```sql
 SELECT ss.spotify_track_id, ss.track_name, ss.artist_name, ss.total_tokens
 FROM "session_songs" ss
-WHERE ss.session_id = 'cmfx4ei2h000acz48kgfhrw5x'
+WHERE ss.session_id = 1  -- Use integer session ID
 ORDER BY ss.total_tokens DESC;
 ```
 
@@ -134,26 +134,6 @@ LEFT JOIN "token_transactions" tt ON u.id = tt.user_id
 WHERE u.deleted_at IS NULL
 GROUP BY u.id, u.display_name, u.tokens_balance;
 ```
-   ```bash
-   npm run docker:up
-   ```
-
-4. **Run database migrations and seed**:
-   ```bash
-   npm run prisma:migrate
-   npm run prisma:seed
-   ```
-
-5. **Start the development server**:
-   ```bash
-   npm run dev
-   ```
-
-The API will be available at:
-- **API**: http://localhost:3000/api
-- **Health Check**: http://localhost:3000/api/health  
-- **API Documentation**: http://localhost:3000/api/docs
-- **Socket.IO**: http://localhost:3000/realtime
 
 ## 📋 Available Scripts
 
@@ -247,8 +227,24 @@ wscat -c "http://localhost:3000/realtime"
 
 Interactive API documentation is available at `/api/docs` when the server is running.
 
-Key endpoints:
+For quick examples and curl commands, see [API_EXAMPLES.md](./API_EXAMPLES.md).
+
+### MVP Endpoints
 - `GET /api/health` - Health check with server status
+- `POST /api/auth/login` - User authentication
+- `GET /api/users/me` - Get current user profile
+- `GET /api/sessions` - Get all live sessions
+- `GET /api/sessions/songs?session_id=1` - Get session scoreboard
+- `POST /api/votes` - Vote for a song with tokens
+
+### Example Vote Request
+```json
+{
+  "session_id": 1,
+  "song_id": "cmgsjtw75000exq087icrby56",
+  "token_amount": 25
+}
+```
 
 ## 🔧 Development Guidelines
 

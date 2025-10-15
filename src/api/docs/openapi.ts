@@ -138,7 +138,7 @@ const swaggerOptions: swaggerJSDoc.Options = {
           type: 'object',
           properties: {
             id: {
-              type: 'string',
+              type: 'integer',
               description: 'Unique session identifier',
             },
             name: {
@@ -166,12 +166,25 @@ const swaggerOptions: swaggerJSDoc.Options = {
         },
         VoteRequest: {
           type: 'object',
-          required: ['token_amount'],
+          required: ['session_id', 'song_id', 'token_amount'],
           properties: {
-            token_amount: {
+            session_id: {
+              type: 'integer',
+              minimum: 1,
+              description: 'Session ID',
+              example: 1,
+            },
+            song_id: {
               type: 'string',
+              description: 'Session Song ID (CUID format)',
+              example: 'cmgsjtw75000exq087icrby56',
+            },
+            token_amount: {
+              type: 'number',
+              minimum: 1,
+              maximum: 1000,
               description: 'Amount of tokens to spend on this vote',
-              example: '10',
+              example: 25,
             },
           },
         },
